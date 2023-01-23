@@ -22,7 +22,7 @@ experiencesRouter.post("/", async (req, res, next) => {
 experiencesRouter.get("/", async (req, res, next) => {
   try {
     const mongoQuery = q2m(req.query);
-    const total = await experiencesRouter.countDocuments(mongoQuery.criteria);
+    const total = await ExperienceModel.countDocuments(mongoQuery.criteria);
     const experiences = await ExperienceModel.find(
       mongoQuery.criteria,
       mongoQuery.options.fields
