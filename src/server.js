@@ -2,12 +2,14 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import listEndpoints from "express-list-endpoints";
+import { config } from "dotenv";
 import postRouter from "./api/post/index.js";
 import {
   badRequestHandler,
   genericErrorHandler,
   notFoundHandler,
-} from "./errorHandlers.js";
+} from "./errorHandlers.js"
+import experiencesRouter from "./api/experiences/index.js";
 
 const server = express();
 const port = process.env.PORT;
@@ -15,9 +17,17 @@ const port = process.env.PORT;
 // ****************************** MIDDLEWARES ******************************
 server.use(cors());
 server.use(express.json());
+
 // ******************************* ENDPOINTS *******************************
+
+server.use("/experiences", experiencesRouter);
+
 server.use("/post", postRouter);
 // ***************************** ERROR HANDLERS ****************************
+
+
+
+
 server.use(badRequestHandler);
 server.use(notFoundHandler);
 server.use(genericErrorHandler);
