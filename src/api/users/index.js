@@ -5,6 +5,8 @@ import multer from "multer";
 import { v2 as cloudinary } from "cloudinary";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 
+const usersRouter = express.Router();
+
 const cloudinaryUploader = multer({
   storage: new CloudinaryStorage({
     cloudinary,
@@ -12,9 +14,7 @@ const cloudinaryUploader = multer({
       folder: "bw4/profile-images",
     },
   }),
-}).single("picture");
-
-const usersRouter = express.Router();
+}).single("image");
 
 //Registers a new user with all his details
 usersRouter.post("/", async (req, res, next) => {
@@ -98,16 +98,20 @@ usersRouter.post(
   cloudinaryUploader,
   async (req, res, next) => {
     try {
+      const url = req.file.path;
+
+      console.log("hgasjsdfhs", url);
       const oldUser = await UsersModel.findById(req.params.userId);
+
       const updatedUser = await UsersModel.findByIdAndUpdate(
         req.params.userId,
-        { ...oldUser, image: req.file.path },
+        { $set: { image: url } },
         { new: true, runValidators: true }
       );
 
       if (updatedUser) {
         await updatedUser.save();
-        res.send(updatedUser);
+        res.send("file uploaded");
       } else {
         next(
           createHttpError(404, `User with id ${req.params.userId} not found!`)

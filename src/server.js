@@ -19,6 +19,8 @@ const port = process.env.PORT;
 server.use(cors());
 server.use(express.json());
 
+mongoose.set("strictQuery", false);
+
 // ******************************* ENDPOINTS *******************************
 server.use("/users", usersRouter);
 
