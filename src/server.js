@@ -1,17 +1,33 @@
 import express from "express";
+import mongoose from "mongoose";
+import cors from "cors";
 import listEndpoints from "express-list-endpoints";
-import postRouter from "./api/post";
+import postRouter from "./api/post/index.js";
+import {
+  badRequestHandler,
+  genericErrorHandler,
+  notFoundHandler,
+} from "./errorHandlers.js";
 
 const server = express();
 const port = process.env.PORT;
 
 // ****************************** MIDDLEWARES ******************************
-
+server.use(cors());
+server.use(express.json());
 // ******************************* ENDPOINTS *******************************
 server.use("/post", postRouter);
 // ***************************** ERROR HANDLERS ****************************
+server.use(badRequestHandler);
+server.use(notFoundHandler);
+server.use(genericErrorHandler);
 
-server.listen(port, () => {
-  console.table(listEndpoints(server));
-  console.log(`Server is running on port ${port}`);
+mongoose.connect(process.env.MONGO_URL);
+
+mongoose.connection.on("connected", () => {
+  server.listen(port, () => {
+    console.table(listEndpoints(server));
+    console.log(`Server is running on port ${port}`);
+  });
+  console.log("Successfully connected to Mongo!");
 });
