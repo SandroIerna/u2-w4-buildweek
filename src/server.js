@@ -9,6 +9,7 @@ import {
   notFoundHandler,
 } from "./errorHandlers.js";
 import experiencesRouter from "./api/experiences/index.js";
+import usersRouter from "./api/users/index.js";
 
 const server = express();
 const port = process.env.PORT;
@@ -19,6 +20,7 @@ server.use(cors());
 server.use(express.json());
 
 // ******************************* ENDPOINTS *******************************
+server.use("/users", usersRouter);
 
 server.use("/experiences", experiencesRouter);
 
@@ -35,5 +37,4 @@ mongoose.connection.on("connected", () => {
     console.table(listEndpoints(server));
     console.log(`Server is running on port ${port}`);
   });
-  console.log("Successfully connected to Mongo!");
 });
