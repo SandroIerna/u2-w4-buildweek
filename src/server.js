@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import { config } from "dotenv";
 import {
   badRequestHandler,
+  conflictErrorHandler,
   genericErrorHandler,
   notFoundHandler,
 } from "./errorHandlers.js";
@@ -30,6 +31,7 @@ server.use("/experiences", experiencesRouter);
 
 server.use(badRequestHandler);
 server.use(notFoundHandler);
+server.use(conflictErrorHandler);
 server.use(genericErrorHandler);
 
 mongoose.connect(process.env.MONGO_URL);

@@ -22,9 +22,21 @@ const cloudinaryUploader = multer({
 //Registers a new user with all his details
 usersRouter.post("/", async (req, res, next) => {
   try {
-    const newUser = new UsersModel(req.body);
-    const { _id } = await newUser.save();
-    res.status(201).send({ _id });
+    const userWithSameName = await UsersModel.findOne({
+      username: req.body.username,
+    });
+    if (userWithSameName) {
+      next(
+        createHttpError(
+          409,
+          `The user with username ${req.body.username} already exist!`
+        )
+      );
+    } else {
+      const newUser = new UsersModel(req.body);
+      const { _id } = await newUser.save();
+      res.status(201).send({ _id });
+    }
   } catch (error) {
     next(error);
   }
