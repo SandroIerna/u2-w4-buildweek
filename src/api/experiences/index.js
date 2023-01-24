@@ -2,6 +2,11 @@ import express from "express";
 import createHttpError from "http-errors";
 import ExperienceModel from "./model.js";
 import q2m from "query-to-mongo";
+import fs from "fs-extra";
+import json2csv from "json2csv";
+import { pipeline } from "stream";
+
+const { createReadStream } = fs;
 
 const experiencesRouter = express.Router();
 
@@ -106,4 +111,22 @@ experiencesRouter.delete("/:experienceId", async (req, res, next) => {
   }
 });
 
+//********************************** CSV FILE ********************************** */
+
+/* experiencesRouter.get("/:experienceId/csv", async (req, res, next) => {
+  try {
+    const cursor = ExperienceModel.find()
+      .cursor()
+      .on("data", (doc) => doc);
+    console.log("------------------", cursor);
+    const transform = new json2csv.Transform({ fields: ["company"] });
+    const destination = res;
+    pipeline(cursor, transform, destination, (err) => {
+      if (err) console.log(err);
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+ */
 export default experiencesRouter;
