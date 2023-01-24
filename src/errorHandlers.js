@@ -13,8 +13,16 @@ export const badRequestHandler = (err, req, res, next) => {
 };
 
 export const notFoundHandler = (err, req, res, next) => {
-  if (err.statut === 404) {
+  if (err.status === 404) {
     res.status(404).send({ message: err.message });
+  } else {
+    next(err);
+  }
+};
+
+export const conflictErrorHandler = (err, req, res, next) => {
+  if (err.status == 409) {
+    res.status(409).send({ message: err.message });
   } else {
     next(err);
   }
