@@ -1,9 +1,46 @@
 import express from "express";
 import PostModel from "./postmodel.js";
 import createHttpError from "http-errors";
+import multer from "multer";
+import { v2 as cloudinary } from "cloudinary";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
 import q2m from "query-to-mongo";
 
 const postRouter = express.Router();
+
+const cloudinaryUploader = multer({
+  storage: new CloudinaryStorage({
+    cloudinary,
+    params: {
+      folder: "fs0432/linkedin",
+    },
+  }),
+}).single("image");
+
+postRouter.post(
+  "/:postId/upload",
+  cloudinaryUploader,
+  async (req, res, next) => {
+    try {
+      const url = req.file.path;
+      console.log("post image here", url);
+
+      const posts = await PostModel.findById(req.params.postId);
+      console.log("list of post", posts);
+
+      const updatePost = await PostModel.findByIdAndUpdate(
+        req.params.postId,
+        { image: url },
+        { new: true, runValidators: true }
+      );
+      if (updatePost) {
+        res.send("Post image uploaded");
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 postRouter.post("/", async (req, res, next) => {
   try {
