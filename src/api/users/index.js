@@ -4,6 +4,9 @@ import UsersModel from "./model.js";
 import multer from "multer";
 import { v2 as cloudinary } from "cloudinary";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
+import { pipeline } from "stream";
+import { getPdfReadableStream } from "./../lib/pdf-tools.js";
+import ExperienceModel from "../experiences/model.js";
 
 const usersRouter = express.Router();
 
@@ -126,6 +129,19 @@ usersRouter.post(
 //Generates and download a PDF with the CV of the user (details, picture, experiences)
 usersRouter.get("/:userId/CV", async (req, res, next) => {
   try {
+    const user = await UsersModel.findById(req.params.userId);
+
+    const experiences = await ExperienceModel.findById(user.experiences);
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename= ${req.params.userId}.pdf`
+    );
+
+    const source = getPdfReadableStream(user, experiences);
+    const destination = res;
+    pipeline(source, destination, (err) => {
+      console.log(err);
+    });
   } catch (error) {
     next(error);
   }

@@ -16,13 +16,9 @@ const usersSchema = new Schema(
       default:
         "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png",
     },
-    //TODO: GET IMG FROM CLOUDINARY
     username: { type: String, required: true },
-    //TODO: ADD VALIDATION FOR THE UNIQUE USERNAME
-    experiences: [],
-    //TODO: EMBEDDING THE EXPERIENCE MODEL
-    posts: [],
-    //TODO: REFERENCING THE POSTS MODEL
+    experiences: [{ type: Schema.Types.ObjectId, ref: "Experience" }],
+    posts: [{ type: Schema.Types.ObjectId, ref: "Post" }],
   },
   {
     timestamps: true,
