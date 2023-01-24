@@ -2,17 +2,17 @@ import express from "express";
 import createHttpError from "http-errors";
 import ExperienceModel from "./model.js";
 import q2m from "query-to-mongo";
-import fs from "fs-extra";
+import multer from "multer";
+import { v2 as cloudinary } from "cloudinary";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
 import json2csv from "json2csv";
-import { pipeline } from "stream";
-
-const { createReadStream } = fs;
+import { pipeline, Readable } from "stream";
 
 const experiencesRouter = express.Router();
 
 //************************************ POST ************************************ */
 
-experiencesRouter.post("/", async (req, res, next) => {
+experiencesRouter.post("/:userId", async (req, res, next) => {
   try {
     const newExperience = new ExperienceModel(req.body);
     const { _id } = await newExperience.save();
@@ -111,22 +111,64 @@ experiencesRouter.delete("/:experienceId", async (req, res, next) => {
   }
 });
 
+//********************************** PUT IMAGE ********************************* */
+
+const cloudinaryUploader = multer({
+  storage: new CloudinaryStorage({
+    cloudinary,
+    params: { folder: "U2-W4-BUILDWEEK" },
+  }),
+}).single("image");
+
+experiencesRouter.post(
+  "/:experienceId/image",
+  cloudinaryUploader,
+  async (req, res, next) => {
+    try {
+      const url = req.file.path;
+      const updatedExperience = await ExperienceModel.findByIdAndUpdate(
+        req.params.experienceId,
+        { image: url },
+        { new: true, runValidators: true }
+      );
+      if (updatedExperience) {
+        await updatedExperience.save();
+        res.send(`File saved, file URL = ${url}`);
+      } else {
+        next(
+          createHttpError(
+            404,
+            `Experience with id ${req.params.experienceId} not found!`
+          )
+        );
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 //********************************** CSV FILE ********************************** */
 
-/* experiencesRouter.get("/:experienceId/csv", async (req, res, next) => {
+experiencesRouter.get("/:experienceId/csv", async (req, res, next) => {
   try {
-    const cursor = ExperienceModel.find()
-      .cursor()
-      .on("data", (doc) => doc);
-    console.log("------------------", cursor);
-    const transform = new json2csv.Transform({ fields: ["company"] });
+    res.setHeader("Content-Dispostion", "attachment; filename=experiences.csv");
+    const experiences = await ExperienceModel.find();
+    const source = new Readable({
+      read(size) {
+        this.push(JSON.stringify(experiences));
+        this.push(null);
+      },
+    });
+    const transform = new json2csv.Transform({ fields: ["company", "role"] });
     const destination = res;
-    pipeline(cursor, transform, destination, (err) => {
+
+    pipeline(source, transform, destination, (err) => {
       if (err) console.log(err);
     });
   } catch (error) {
     next(error);
   }
 });
- */
+
 export default experiencesRouter;
