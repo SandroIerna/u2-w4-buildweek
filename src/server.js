@@ -9,7 +9,7 @@ import {
   conflictErrorHandler,
   genericErrorHandler,
   notFoundHandler,
-} from "./errorHandlers.js"
+} from "./errorHandlers.js";
 import experiencesRouter from "./api/experiences/index.js";
 import usersRouter from "./api/users/index.js";
 
@@ -23,15 +23,12 @@ server.use(express.json());
 mongoose.set("strictQuery", false);
 
 // ******************************* ENDPOINTS *******************************
+
 server.use("/users", usersRouter);
-
 server.use("/experiences", experiencesRouter);
-
 server.use("/post", postRouter);
+
 // ***************************** ERROR HANDLERS ****************************
-
-
-
 
 server.use(badRequestHandler);
 server.use(notFoundHandler);
