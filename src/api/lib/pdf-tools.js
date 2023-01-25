@@ -18,14 +18,12 @@ export const getPdfReadableStream = (user, experiences) => {
       { text: "Email", style: "header" },
       `${user.email}`,
       { text: "Bio", style: "header" },
-      `${user.bio}`,
+      `${user?.bio}`,
       { text: "Experiences", style: "header" },
-      { text: "Role", style: "header" },
-      `${experiences.role}`,
       { text: "Company", style: "header" },
-      `${experiences.company}`,
+      `${experiences?.company}`,
       { text: "Description", style: "header" },
-      `${experiences.description}`,
+      `${experiences?.description}`,
     ],
     styles: {
       header: {
