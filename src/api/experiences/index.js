@@ -1,6 +1,7 @@
 import express from "express";
 import createHttpError from "http-errors";
 import ExperienceModel from "./model.js";
+import UsersModel from "../users/model.js";
 import q2m from "query-to-mongo";
 import multer from "multer";
 import { v2 as cloudinary } from "cloudinary";
@@ -16,7 +17,22 @@ experiencesRouter.post("/:userId/experiences", async (req, res, next) => {
   try {
     const newExperience = new ExperienceModel(req.body);
     const { _id } = await newExperience.save();
-    res.status(201).send(_id);
+    if (newExperience) {
+      const updatedUser = await UsersModel.findByIdAndUpdate(
+        req.params.userId,
+        { $push: { experiences: _id } },
+        { new: true, runValidators: true }
+      );
+      if (updatedUser) {
+        res.status(201).send(_id);
+      } else {
+        next(
+          createHttpError(404, `User with id ${req.params.userId} not found!`)
+        );
+      }
+    } else {
+      next(createHttpError(400, `Please add a valid Experience`));
+    }
   } catch (error) {
     next(error);
   }

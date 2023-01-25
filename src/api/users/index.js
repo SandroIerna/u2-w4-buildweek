@@ -55,7 +55,9 @@ usersRouter.get("/", async (req, res, next) => {
 //Retrieves the user with userId
 usersRouter.get("/:userId", async (req, res, next) => {
   try {
-    const user = await UsersModel.findById(req.params.userId);
+    const user = await UsersModel.findById(req.params.userId).populate({
+      path: "experiences",
+    });
 
     if (user) {
       res.send(user);
