@@ -25,8 +25,8 @@ mongoose.set("strictQuery", false);
 // ******************************* ENDPOINTS *******************************
 
 server.use("/users", usersRouter);
-server.use("/experiences", experiencesRouter);
-server.use("/post", postRouter);
+server.use("/users", experiencesRouter);
+server.use("/posts", postRouter);
 
 // ***************************** ERROR HANDLERS ****************************
 
