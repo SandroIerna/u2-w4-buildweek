@@ -7,6 +7,7 @@ import { CloudinaryStorage } from "multer-storage-cloudinary";
 import { pipeline } from "stream";
 import { getPdfReadableStream } from "./../lib/pdf-tools.js";
 import ExperienceModel from "../experiences/model.js";
+import q2m from "query-to-mongo";
 
 const usersRouter = express.Router();
 
@@ -45,7 +46,14 @@ usersRouter.post("/", async (req, res, next) => {
 //Retrieves list of users
 usersRouter.get("/", async (req, res, next) => {
   try {
-    const users = await UsersModel.find();
+    const mongoQuery = q2m(req.query);
+    const users = await UsersModel.find(
+      mongoQuery.criteria,
+      mongoQuery.options.fields
+    )
+      .skip(mongoQuery.options.skip)
+      .limit(mongoQuery.options.limit);
+
     res.send(users);
   } catch (error) {
     next(error);
