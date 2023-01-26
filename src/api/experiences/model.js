@@ -11,6 +11,7 @@ const experienceSchema = new Schema(
     description: { type: String, required: true },
     area: { type: String, required: true },
     image: { type: String, default: "http://placekitten.com/g/300/300" },
+    user_id: { type: String, required: true },
   },
   { timestamps: true }
 );

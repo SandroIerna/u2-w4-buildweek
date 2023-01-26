@@ -20,13 +20,13 @@ const port = process.env.PORT;
 server.use(cors());
 server.use(express.json());
 
-mongoose.set("strictQuery", false);
+/* mongoose.set("strictQuery", false); */
 
 // ******************************* ENDPOINTS *******************************
 
 server.use("/users", usersRouter);
-server.use("/experiences", experiencesRouter);
-server.use("/post", postRouter);
+server.use("/users", experiencesRouter);
+server.use("/posts", postRouter);
 
 // ***************************** ERROR HANDLERS ****************************
 
