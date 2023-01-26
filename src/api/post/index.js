@@ -47,6 +47,7 @@ postRouter.post("/", async (req, res, next) => {
 
     res.status(201).send({
       message: `post with ${_id} created`,
+      id: _id,
     });
   } catch (error) {
     next(error);
