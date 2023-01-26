@@ -44,13 +44,14 @@ experiencesRouter.get("/:userId/experiences", async (req, res, next) => {
   try {
     const mongoQuery = q2m(req.query);
     const total = await ExperienceModel.countDocuments(mongoQuery.criteria);
-    const experiences = await ExperienceModel.find(
-      mongoQuery.criteria,
-      mongoQuery.options.fields
-    )
+    const user = await UsersModel.findById(req.params.userId)
       .limit(mongoQuery.options.limit)
       .skip(mongoQuery.options.skip)
-      .sort(mongoQuery.options.sort);
+      .sort(mongoQuery.options.sort)
+      .populate({
+        path: "experiences",
+      });
+    const experiences = user.experiences;
     res.send({
       links: mongoQuery.links("http://localhost:3001/experiences", total),
       totalPages: Math.ceil(total / mongoQuery.options.limit),
@@ -123,7 +124,20 @@ experiencesRouter.delete(
         req.params.experienceId
       );
       if (deletedExperience) {
-        res.status(204).send();
+        const user = await UsersModel.findByIdAndUpdate(
+          req.params.userId,
+          {
+            $pull: { experiences: req.params.experienceId },
+          },
+          { new: true, runValidators: true }
+        );
+        if (user) {
+          res.status(204).send();
+        } else {
+          next(
+            createHttpError(404, `User with id ${req.params.userId} not found!`)
+          );
+        }
       } else {
         next(
           createHttpError(
