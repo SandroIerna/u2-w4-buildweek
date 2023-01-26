@@ -26,7 +26,7 @@ server.use(express.json());
 
 server.use("/users", usersRouter);
 server.use("/users", experiencesRouter);
-server.use("/posts", postRouter);
+server.use("/post", postRouter);
 
 // ***************************** ERROR HANDLERS ****************************
 
