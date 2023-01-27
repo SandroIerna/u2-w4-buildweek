@@ -5,6 +5,7 @@ import multer from "multer";
 import { v2 as cloudinary } from "cloudinary";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import q2m from "query-to-mongo";
+import UsersModel from "../users/model.js";
 
 const postRouter = express.Router();
 
@@ -41,14 +42,23 @@ postRouter.post("/:postId", cloudinaryUploader, async (req, res, next) => {
 postRouter.post("/", async (req, res, next) => {
   try {
     const userId = req.body.user;
-    console.log("here i am", userId);
     const post = new PostModel(req.body);
     const { _id } = await post.save();
+    const updatedUser = await UsersModel.findByIdAndUpdate(
+      userId,
+      { $push: { posts: post._id } },
+      { new: true, runValidators: true }
+    );
+    if (updatedUser) {
+      const { _id } = await post.save();
 
-    res.status(201).send({
-      message: `post with ${_id} created`,
-      id: _id,
-    });
+      res.status(201).send({
+        message: `Post with ID: ${_id} created and user.posts with ID: ${userId} updated!`,
+        post: post,
+      });
+    } else {
+      next(createHttpError(404, `User with id ${userId} not found!`));
+    }
   } catch (error) {
     next(error);
   }
