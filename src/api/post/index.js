@@ -41,20 +41,19 @@ postRouter.post("/:postId", cloudinaryUploader, async (req, res, next) => {
 
 postRouter.post("/", async (req, res, next) => {
   try {
-    const userId = req.body.user;
     const post = new PostModel(req.body);
-    const { _id } = await post.save();
+    const userId = req.body.user;
     const updatedUser = await UsersModel.findByIdAndUpdate(
       userId,
       { $push: { posts: post._id } },
       { new: true, runValidators: true }
-    );
+    ).populate("posts");
     if (updatedUser) {
       const { _id } = await post.save();
 
       res.status(201).send({
-        message: `Post with ID: ${_id} created and user.posts with ID: ${userId} updated!`,
-        post: post,
+        message: `Post with ID: ${_id} created`,
+        id: _id,
       });
     } else {
       next(createHttpError(404, `User with id ${userId} not found!`));
@@ -67,7 +66,7 @@ postRouter.get("/", async (req, res, next) => {
   try {
     const post = await PostModel.find().populate({
       path: "user",
-      select: "name surname username _id",
+      select: "name surname username _id image",
     });
     res.send(post);
   } catch (error) {
@@ -78,7 +77,7 @@ postRouter.get("/:postId", async (req, res, next) => {
   try {
     const post = await PostModel.findById(req.params.postId).populate({
       path: "user",
-      select: "name surname username _id",
+      select: "name surname username _id image",
     });
     if (post) {
       res.send(post);
